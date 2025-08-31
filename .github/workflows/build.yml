@@ -18,7 +18,7 @@ jobs:
     strategy:
       fail-fast: false # 如果一个平台失败，其他平台继续构建
       matrix:
-        platform: [macos-latest, ubuntu-20.04, windows-latest]
+        platform: [macos-latest, windows-latest]
 
     # 在指定的操作系统上运行
     runs-on: ${{ matrix.platform }}
