@@ -5,21 +5,18 @@ name: clipboard-manager
 on:
   # 当你推送代码到 main 分支时
   push:
-    branches: [ main ]
+    branches: [main]
+    tags: ['v*']
   # 当你创建 Pull Request 时
   pull_request:
-    branches: [ main ]
-  # 当你创建版本标签时（比如 v1.0.0）
-  push:
-    tags:
-      - 'v*'
+    branches: [main]
 
 # 定义要做的工作
 jobs:
   build:
     # 策略：在三个不同的操作系统上同时构建
     strategy:
-      fail-fast: false  # 如果一个平台失败，其他平台继续构建
+      fail-fast: false # 如果一个平台失败，其他平台继续构建
       matrix:
         platform: [macos-latest, ubuntu-20.04, windows-latest]
 
@@ -28,47 +25,47 @@ jobs:
 
     # 具体要执行的步骤
     steps:
-    # 第1步：下载你的代码到云电脑上
-    - name: 下载代码
-      uses: actions/checkout@v4
+      # 第1步：下载你的代码到云电脑上
+      - name: 下载代码
+        uses: actions/checkout@v4
 
-    # 第2步：安装 Node.js（用于构建前端）
-    - name: 安装 Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '22'
+      # 第2步：安装 Node.js（用于构建前端）
+      - name: 安装 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
 
-    # 第3步：安装 Rust（用于构建后端）
-    - name: 安装 Rust
-      uses: dtolnay/rust-toolchain@stable
+      # 第3步：安装 Rust（用于构建后端）
+      - name: 安装 Rust
+        uses: dtolnay/rust-toolchain@stable
 
-    # 第4步：缓存 Rust 构建产物（加速构建）
-    - name: Rust 缓存
-      uses: swatinem/rust-cache@v2
-      with:
-        workspaces: './src-tauri -> target'
+      # 第4步：缓存 Rust 构建产物（加速构建）
+      - name: Rust 缓存
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
 
-    # 第5步：安装前端依赖
-    - name: 安装前端依赖
-      run: npm install
+      # 第5步：安装前端依赖
+      - name: 安装前端依赖
+        run: npm install
 
-    # 第6步：构建 Tauri 应用
-    - name: 构建应用
-      uses: tauri-apps/tauri-action@v0
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        # 如果你想发布到 GitHub Releases，取消下面这行的注释
-        tagName: app-v__VERSION__
-        releaseName: 'App v__VERSION__'
-        releaseBody: 'See the assets to download this version and install.'
-        releaseDraft: true
-        prerelease: false
+      # 第6步：构建 Tauri 应用
+      - name: 构建应用
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          # 如果你想发布到 GitHub Releases，取消下面这行的注释
+          tagName: app-v__VERSION__
+          releaseName: 'App v__VERSION__'
+          releaseBody: 'See the assets to download this version and install.'
+          releaseDraft: true
+          prerelease: false
 
-    # 第7步：上传构建产物
-    - name: 上传构建文件
-      uses: actions/upload-artifact@v4
-      with:
-        name: clipboard-manager-${{ matrix.platform }}
-        path: |
-          src-tauri/target/release/bundle/
+      # 第7步：上传构建产物
+      - name: 上传构建文件
+        uses: actions/upload-artifact@v4
+        with:
+          name: clipboard-manager-${{ matrix.platform }}
+          path: |
+            src-tauri/target/release/bundle/
